@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Đấu Trường Nguyên Tử – KHTN 8</title>
+<style>
+:root {
+  --navy:#173b67; --blue:#2f80ed; --cyan:#56ccf2; --green:#27ae60;
+  --red:#eb5757; --gold:#f2c94c; --bg:#eef6ff; --text:#17324d;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(135deg,#eaf5ff,#f8fbff);color:var(--text);min-height:100vh}
+.container{max-width:1000px;margin:auto;padding:22px}
+.card{background:#fff;border-radius:24px;box-shadow:0 12px 35px rgba(23,59,103,.13);padding:28px}
+.hero{text-align:center;padding:34px 22px}
+.atom{font-size:58px;margin-bottom:8px}
+h1{margin:0;color:var(--navy);font-size:34px}
+.subtitle{font-size:17px;color:#54708d;margin:10px 0 24px}
+input{width:100%;padding:15px 17px;border:2px solid #d6e6f5;border-radius:14px;font-size:17px;outline:none}
+input:focus{border-color:var(--blue)}
+button{border:0;border-radius:14px;padding:14px 22px;font-size:17px;font-weight:700;cursor:pointer;transition:.2s}
+button:hover{transform:translateY(-1px)}
+.primary{background:var(--blue);color:#fff;box-shadow:0 7px 18px rgba(47,128,237,.25)}
+.secondary{background:#edf5ff;color:var(--navy)}
+.danger{background:var(--red);color:#fff}
+.start-btn{width:100%;margin-top:16px;font-size:18px}
+.hidden{display:none!important}
+.topbar{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:18px}
+.badge{background:#edf5ff;color:var(--navy);padding:9px 13px;border-radius:999px;font-weight:700}
+.timer{background:#fff4df;color:#a35a00;padding:9px 15px;border-radius:999px;font-weight:800;min-width:105px;text-align:center}
+.progress{height:10px;background:#e7eef5;border-radius:99px;overflow:hidden;margin-bottom:24px}
+.progress span{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--cyan));width:0;transition:.3s}
+.question-number{color:var(--blue);font-weight:800;margin-bottom:9px}
+.question{font-size:23px;line-height:1.45;font-weight:750;margin:0 0 22px}
+.options{display:grid;gap:13px}
+.option{background:#f7fbff;border:2px solid #dbeaf7;text-align:left;color:var(--text);padding:16px 18px;border-radius:16px;font-weight:600}
+.option:hover{border-color:#80b8ef;background:#eef7ff}
+.option.selected{border-color:var(--blue);background:#e8f3ff}
+.option.correct{border-color:var(--green);background:#eaf8ef;color:#166b3a}
+.option.wrong{border-color:var(--red);background:#fff0f0;color:#a52222}
+.option:disabled{cursor:default;transform:none}
+.nav{display:flex;justify-content:space-between;gap:12px;margin-top:22px}
+.feedback{margin-top:16px;padding:14px 16px;border-radius:14px;font-weight:700}
+.feedback.ok{background:#eaf8ef;color:#176a3a}
+.feedback.no{background:#fff0f0;color:#a52222}
+.result{text-align:center}
+.score-circle{width:170px;height:170px;border-radius:50%;margin:20px auto;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#2f80ed,#56ccf2);color:white;box-shadow:0 12px 30px rgba(47,128,237,.25)}
+.score-circle strong{font-size:42px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:22px 0}
+.stat{background:#f6faff;border-radius:16px;padding:16px}
+.stat b{display:block;font-size:25px;color:var(--navy)}
+.review{text-align:left;margin-top:24px}
+.review-item{padding:15px;border:1px solid #e2ebf3;border-radius:14px;margin:10px 0}
+.review-item b{color:var(--navy)}
+.footer{text-align:center;color:#7890a7;font-size:13px;margin:18px 0}
+@media(max-width:650px){
+ h1{font-size:27px} .question{font-size:20px} .card{padding:20px}
+ .stats{grid-template-columns:1fr} .nav button{flex:1}
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div id="startScreen" class="card hero">
+    <div class="atom">⚛️</div>
+    <h1>ĐẤU TRƯỜNG NGUYÊN TỬ</h1>
+    <div class="subtitle">Trò chơi trắc nghiệm KHTN – Chủ đề: Nguyên tử</div>
+    <p><b>20 câu hỏi</b> • Tính điểm tự động • Có xem lại đáp án</p>
+    <input id="studentName" maxlength="50" placeholder="Nhập họ và tên học sinh...">
+    <button class="primary start-btn" onclick="startGame()">🚀 BẮT ĐẦU CHƠI</button>
+    <div class="footer">Dành cho học sinh THCS • Mỗi câu 10 điểm</div>
+  </div>
+
+  <div id="gameScreen" class="card hidden">
+    <div class="topbar">
+      <span class="badge">👤 <span id="playerName"></span></span>
+      <span class="badge">🏆 Điểm: <span id="scoreTop">0</span></span>
+      <span class="timer">⏱️ <span id="timer">20</span>s</span>
+    </div>
+    <div class="progress"><span id="progressBar"></span></div>
+    <div class="question-number" id="questionNumber"></div>
+    <p class="question" id="questionText"></p>
+    <div class="options" id="options"></div>
+    <div id="feedback" class="feedback hidden"></div>
+    <div class="nav">
+      <button class="secondary" id="nextBtn" onclick="nextQuestion()" disabled>➡️ Câu tiếp theo</button>
+      <button class="danger" onclick="finishGame()">🏁 Nộp bài</button>
+    </div>
+  </div>
+
+  <div id="resultScreen" class="card result hidden">
+    <div class="atom">🎉</div>
+    <h1>HOÀN THÀNH!</h1>
+    <p id="resultName"></p>
+    <div class="score-circle"><strong id="finalScore">0</strong><span>/ 200 điểm</span></div>
+    <div class="stats">
+      <div class="stat">Đúng<b id="correctCount">0</b></div>
+      <div class="stat">Sai<b id="wrongCount">0</b></div>
+      <div class="stat">Tỉ lệ<b id="percent">0%</b></div>
+    </div>
+    <p id="message"></p>
+    <div class="nav">
+      <button class="secondary" onclick="showReview()">📋 Xem lại đáp án</button>
+      <button class="primary" onclick="restartGame()">🔄 Chơi lại</button>
+    </div>
+    <div id="review" class="review hidden"></div>
+  </div>
+</div>
+
+<script>
+const questions = [{"id": 1, "q": "Thành phần cấu tạo của hầu hết các loại nguyên tử gồm:", "options": ["proton và electron.", "neutron và electron.", "proton và neutron.", "proton, neutron và electron."], "answer": 3, "letter": "D"}, {"id": 2, "q": "Trong nguyên tử các hạt mang điện là", "options": ["neutron, electron.", "proton, electron.", "proton, neutron, electron.", "proton, neutron."], "answer": 1, "letter": "B"}, {"id": 3, "q": "Hạt mang điện trong hạt nhân nguyên tử là", "options": ["electron.", "proton.", "neutron.", "proton và neutron."], "answer": 1, "letter": "B"}, {"id": 4, "q": "Vỏ nguyên tử được tạo nên từ loại hạt nào sau đây?", "options": ["Electron.", "Proton.", "Proton, neutron, electron.", "Proton, neutron."], "answer": 0, "letter": "A"}, {"id": 5, "q": "Hầu hết hạt nhân nguyên tử cấu tạo bởi hạt", "options": ["proton và electron.", "neutron và electron.", "proton và neutron.", "proton, neutron và electron."], "answer": 2, "letter": "C"}, {"id": 6, "q": "Trong một nguyên tử", "options": ["số proton = số neutron.", "số electron = số neutron.", "số electron = số proton.", "số electron = số proton + số neutron."], "answer": 2, "letter": "C"}, {"id": 7, "q": "Số electron trong nguyên tử Fe (có số proton = 26) là", "options": ["20.", "21.", "26.", "25."], "answer": 2, "letter": "C"}, {"id": 8, "q": "Điền từ còn thiếu: “Nguyên tử là hạt vô cùng nhỏ và ...(1)... về điện. Nguyên tử gồm hạt nhân mang điện tích dương và vỏ tạo bởi ...(2)... mang ...(3)...”", "options": ["(1): trung hòa; (2): hạt nhân; (3): điện tích âm.", "(1): trung hòa; (2): một hay nhiều electron; (3): không mang điện.", "(1): không trung hòa; (2): một hạt electron; (3): điện tích dương.", "(1): trung hòa; (2): một hay nhiều electron; (3): điện tích âm."], "answer": 3, "letter": "D"}, {"id": 9, "q": "Nguyên tử oxygen có 8 hạt proton trong hạt nhân. Số hạt mang điện tích trong nguyên tử oxygen là", "options": ["8.", "4.", "16.", "12."], "answer": 2, "letter": "C"}, {"id": 10, "q": "Khối lượng gần đúng của nguyên tử sodium (11p, 12n) là", "options": ["11 amu.", "12 amu.", "23 amu.", "34 amu."], "answer": 2, "letter": "C"}, {"id": 11, "q": "Nguyên tử X có 19 proton. Số electron của X là", "options": ["17.", "18.", "19.", "20."], "answer": 2, "letter": "C"}, {"id": 12, "q": "Số electron tối đa ở lớp thứ nhất là", "options": ["1", "2", "3", "4"], "answer": 1, "letter": "B"}, {"id": 13, "q": "Nguyên tử X có 9 electron, lớp ngoài cùng của nguyên tử X có số electron là", "options": ["1.", "2.", "7.", "8."], "answer": 2, "letter": "C"}, {"id": 14, "q": "Nguyên tử X có 11 hạt proton và 12 neutron. Tổng số hạt trong nguyên tử X là", "options": ["23.", "34.", "35.", "46."], "answer": 1, "letter": "B"}, {"id": 15, "q": "Có các phát biểu sau về nguyên tử: (a) Điện tích hạt proton bằng điện tích hạt electron; (b) Khối lượng hạt proton bằng khối lượng hạt electron; (c) Khối lượng nguyên tử tập trung chủ yếu ở hạt nhân; (d) Trong nguyên tử luôn có số proton bằng số electron. Số phát biểu đúng là", "options": ["1.", "2.", "3", "4."], "answer": 2, "letter": "C"}, {"id": 16, "q": "Nguyên tử magnesium có 12 hạt proton và 12 hạt neutron. Khối lượng nguyên tử magnesium là", "options": ["24 amu.", "23 amu.", "25 amu.", "26 amu."], "answer": 0, "letter": "A"}, {"id": 17, "q": "Nguyên tử X có 2 electron ở lớp thứ nhất, 8 electron ở lớp thứ hai, 3 electron ở lớp thứ ba. Số hạt mang điện trong nguyên tử X là", "options": ["13.", "26.", "39.", "10."], "answer": 1, "letter": "B"}, {"id": 18, "q": "Nguyên tử phosphorus có tổng số hạt là 46, trong đó số hạt không mang điện là 16. Số hạt proton trong nguyên tử phosphorus là", "options": ["15.", "16.", "30", "31."], "answer": 0, "letter": "A"}, {"id": 19, "q": "Trong hạt nhân nguyên tử fluorine có 9 proton. Số electron ở lớp ngoài cùng của vỏ nguyên tử fluorine là bao nhiêu?", "options": ["4.", "5.", "6", "7."], "answer": 3, "letter": "D"}, {"id": 20, "q": "Nguyên tử X có tổng số hạt là 48, trong đó số hạt mang điện nhiều hơn số hạt không mang điện là 16. Số hạt proton trong nguyên tử X là bao nhiêu?", "options": ["14.", "15.", "16", "17."], "answer": 2, "letter": "C"}];
+let current=0, score=0, correct=0, answered=false, timer=20, timerId=null;
+let userAnswers=Array(questions.length).fill(null);
+let player="";
+
+function startGame(){
+  player=document.getElementById('studentName').value.trim();
+  if(!player){alert("Em hãy nhập họ và tên trước khi bắt đầu nhé!");return;}
+  document.getElementById('playerName').textContent=player;
+  document.getElementById('startScreen').classList.add('hidden');
+  document.getElementById('gameScreen').classList.remove('hidden');
+  current=0; score=0; correct=0; userAnswers.fill(null);
+  renderQuestion();
+}
+function renderQuestion(){
+  const q=questions[current]; answered=false; timer=20;
+  document.getElementById('questionNumber').textContent=`CÂU ${q.id} / ${questions.length}`;
+  document.getElementById('questionText').textContent=q.q;
+  document.getElementById('scoreTop').textContent=score;
+  document.getElementById('progressBar').style.width=((current)/questions.length*100)+'%';
+  const box=document.getElementById('options'); box.innerHTML='';
+  q.options.forEach((opt,i)=>{
+    const b=document.createElement('button');
+    b.className='option';
+    b.innerHTML=`<b>${["A","B","C","D"][i]}.</b> ${opt}`;
+    b.onclick=()=>chooseAnswer(i);
+    box.appendChild(b);
+  });
+  const fb=document.getElementById('feedback'); fb.className='feedback hidden'; fb.textContent='';
+  document.getElementById('nextBtn').disabled=true;
+  startTimer();
+}
+function startTimer(){
+  clearInterval(timerId);
+  document.getElementById('timer').textContent=timer;
+  timerId=setInterval(()=>{
+    timer--; document.getElementById('timer').textContent=timer;
+    if(timer<=0){clearInterval(timerId); if(!answered) chooseAnswer(-1);}
+  },1000);
+}
+function chooseAnswer(i){
+  if(answered)return;
+  answered=true; clearInterval(timerId);
+  const q=questions[current]; userAnswers[current]=i;
+  const buttons=document.querySelectorAll('.option');
+  buttons.forEach((b,idx)=>{
+    b.disabled=true;
+    if(idx===q.answer)b.classList.add('correct');
+    if(idx===i && i!==q.answer)b.classList.add('wrong');
+  });
+  const fb=document.getElementById('feedback');
+  fb.classList.remove('hidden');
+  if(i===q.answer){
+    score+=10; correct++;
+    fb.className='feedback ok'; fb.textContent='✅ Chính xác! +10 điểm';
+  } else {
+    fb.className='feedback no';
+    fb.textContent=i===-1 ? `⏰ Hết thời gian! Đáp án đúng: ${q.letter}` : `❌ Chưa đúng. Đáp án đúng: ${q.letter}`;
+  }
+  document.getElementById('scoreTop').textContent=score;
+  document.getElementById('nextBtn').disabled=false;
+  document.getElementById('nextBtn').textContent=current===questions.length-1?'🏆 Xem kết quả':'➡️ Câu tiếp theo';
+}
+function nextQuestion(){
+  if(!answered)return;
+  if(current<questions.length-1){current++;renderQuestion();}
+  else finishGame();
+}
+function finishGame(){
+  clearInterval(timerId);
+  if(!answered && current<questions.length) {
+    // Finish without answering current; keep unanswered as null.
+  }
+  document.getElementById('gameScreen').classList.add('hidden');
+  document.getElementById('resultScreen').classList.remove('hidden');
+  document.getElementById('finalScore').textContent=score;
+  document.getElementById('correctCount').textContent=correct;
+  document.getElementById('wrongCount').textContent=questions.length-correct;
+  document.getElementById('percent').textContent=Math.round(score/200*100)+'%';
+  document.getElementById('resultName').innerHTML=`Học sinh: <b>${escapeHtml(player)}</b>`;
+  const pct=score/200*100;
+  document.getElementById('message').textContent=pct>=80?'🌟 Rất tốt! Em nắm kiến thức khá chắc.':pct>=50?'👏 Cố gắng thêm một chút nữa nhé!':'💪 Hãy ôn lại bài và thử sức lần nữa nhé!';
+}
+function showReview(){
+  const box=document.getElementById('review'); box.classList.toggle('hidden');
+  if(!box.classList.contains('hidden')){
+    box.innerHTML='<h3>📋 ĐÁP ÁN CHI TIẾT</h3>'+questions.map((q,i)=>{
+      const ua=userAnswers[i];
+      const ok=ua===q.answer;
+      return `<div class="review-item"><b>Câu ${q.id}:</b> ${ok?'✅ Đúng':'❌ Sai/Chưa trả lời'}<br>Đáp án đúng: <b>${q.letter}</b> – ${q.options[q.answer]}${ua!==null&&ua!==q.answer?`<br>Em chọn: ${["A","B","C","D"][ua]} – ${q.options[ua]}`:''}</div>`;
+    }).join('');
+  }
+}
+function restartGame(){
+  document.getElementById('resultScreen').classList.add('hidden');
+  document.getElementById('startScreen').classList.remove('hidden');
+  document.getElementById('review').classList.add('hidden');
+}
+function escapeHtml(s){return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
+</script>
+</body>
+</html>
